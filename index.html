@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Η Αποστολή του Κωνσταντίνου ⚡</title>
+<style>
+  :root {
+    --marvel-red: #e23636;
+    --marvel-yellow: #f0c31f;
+    --marvel-dark: #1a1a2e;
+    --marvel-blue: #0f3460;
+    --white: #ffffff;
+    --green: #27ae60;
+    --correct-bg: #1a5c34;
+    --wrong-bg: #7b1111;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Arial Black', Arial, sans-serif;
+    background: var(--marvel-dark);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow-x: hidden;
+    transition: background 0.5s;
+  }
+  body.joke-mode { background: #0d2e0d; }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: radial-gradient(circle, rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 20px 20px;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .screen { display: none; width: 100%; max-width: 700px; padding: 20px; position: relative; z-index: 1; }
+  .screen.active { display: block; }
+
+  /* WELCOME */
+  .marvel-logo { text-align: center; margin-bottom: 10px; }
+  .logo-box {
+    display: inline-block;
+    background: var(--marvel-red);
+    color: white;
+    font-size: 2rem;
+    font-weight: 900;
+    padding: 8px 28px;
+    border: 4px solid black;
+    border-radius: 6px;
+    box-shadow: 6px 6px 0 black;
+    letter-spacing: 4px;
+    animation: logoPulse 2s ease-in-out infinite;
+    text-transform: uppercase;
+  }
+  @keyframes logoPulse {
+    0%,100% { transform: scale(1); box-shadow: 6px 6px 0 black; }
+    50% { transform: scale(1.05); box-shadow: 8px 8px 0 black; }
+  }
+  .welcome-card {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    border: 4px solid var(--marvel-yellow);
+    border-radius: 16px;
+    padding: 30px 24px;
+    text-align: center;
+    box-shadow: 0 0 40px rgba(240,195,31,0.4), inset 0 0 60px rgba(0,0,0,0.3);
+    position: relative;
+    overflow: hidden;
+  }
+  .welcome-card::before {
+    content: '⚡';
+    position: absolute;
+    font-size: 200px;
+    opacity: 0.04;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    pointer-events: none;
+  }
+  .welcome-title {
+    font-size: clamp(1.6rem, 5vw, 2.5rem);
+    color: var(--marvel-yellow);
+    text-shadow: 3px 3px 0 #c0961a, -1px -1px 0 black, 1px -1px 0 black;
+    margin: 16px 0 8px;
+    line-height: 1.2;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+  .welcome-subtitle {
+    font-size: clamp(1rem, 3vw, 1.3rem);
+    color: #ff9999;
+    text-shadow: 1px 1px 0 black;
+    margin-bottom: 12px;
+  }
+  .welcome-intro {
+    font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+    color: #ccc;
+    margin-bottom: 24px;
+    line-height: 1.5;
+  }
+
+  /* BUTTONS */
+  .btn-main {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--marvel-red), #c0392b);
+    color: white;
+    font-size: clamp(1rem, 3vw, 1.4rem);
+    font-weight: 900;
+    padding: 16px 40px;
+    border: 4px solid black;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 6px 6px 0 black;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    transition: all 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn-main:hover { transform: translate(-2px,-2px); box-shadow: 8px 8px 0 black; }
+  .btn-main:active { transform: translate(3px,3px); box-shadow: 3px 3px 0 black; }
+
+  /* QUIZ */
+  .quiz-header { text-align: center; margin-bottom: 16px; }
+  .hero-emoji { font-size: 3rem; display: block; animation: heroBounce 1s ease-in-out infinite alternate; }
+  @keyframes heroBounce {
+    from { transform: translateY(0) rotate(-5deg); }
+    to   { transform: translateY(-8px) rotate(5deg); }
+  }
+  .progress-label {
+    color: var(--marvel-yellow);
+    font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+    font-weight: 900;
+    margin: 6px 0;
+    text-shadow: 1px 1px 0 black;
+    text-transform: uppercase;
+  }
+  .progress-bar-outer {
+    width: 100%; height: 16px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 8px;
+    border: 2px solid rgba(255,255,255,0.2);
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+  .progress-bar-inner {
+    height: 100%;
+    background: linear-gradient(90deg, var(--marvel-yellow), var(--marvel-red));
+    border-radius: 8px;
+    transition: width 0.5s ease;
+    box-shadow: 0 0 10px rgba(240,195,31,0.6);
+  }
+  .question-card {
+    background: linear-gradient(135deg, #1e1e3f, #0f3460);
+    border: 4px solid var(--marvel-red);
+    border-radius: 16px;
+    padding: 24px 20px;
+    margin-bottom: 16px;
+    box-shadow: 0 0 20px rgba(226,54,54,0.3);
+    transition: all 0.3s;
+  }
+  .question-card.flash-correct {
+    border-color: var(--green);
+    background: var(--correct-bg);
+    box-shadow: 0 0 30px rgba(39,174,96,0.7);
+    animation: flashCorrect 0.5s ease;
+  }
+  .question-card.flash-wrong {
+    border-color: #e74c3c;
+    background: var(--wrong-bg);
+    box-shadow: 0 0 30px rgba(231,76,60,0.7);
+    animation: flashWrong 0.4s ease;
+  }
+  @keyframes flashCorrect {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.03); }
+    100% { transform: scale(1); }
+  }
+  @keyframes flashWrong {
+    0%,100% { transform: translateX(0); }
+    25% { transform: translateX(-8px); }
+    75% { transform: translateX(8px); }
+  }
+  .question-text {
+    font-size: clamp(1.1rem, 3.5vw, 1.5rem);
+    color: white;
+    font-weight: 900;
+    text-align: center;
+    line-height: 1.4;
+    text-shadow: 2px 2px 0 rgba(0,0,0,0.5);
+    margin-bottom: 8px;
+  }
+  .feedback-text {
+    text-align: center;
+    font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+    font-weight: 900;
+    min-height: 28px;
+    padding: 4px;
+    border-radius: 6px;
+    letter-spacing: 1px;
+  }
+  .feedback-text.correct { color: #5dfc8d; text-shadow: 0 0 10px #27ae60; }
+  .feedback-text.wrong   { color: #ff7070; text-shadow: 0 0 10px #e74c3c; }
+  .answers-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 12px;
+  }
+  .btn-answer {
+    background: linear-gradient(135deg, #1a2a4a, #0d1f3c);
+    color: white;
+    font-size: clamp(0.9rem, 2.5vw, 1.15rem);
+    font-weight: 700;
+    padding: 18px 12px;
+    border: 3px solid rgba(255,255,255,0.25);
+    border-radius: 12px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s;
+    box-shadow: 4px 4px 0 rgba(0,0,0,0.4);
+    -webkit-tap-highlight-color: transparent;
+    line-height: 1.3;
+  }
+  .btn-answer:hover {
+    background: linear-gradient(135deg, #2a3a6a, #1d3460);
+    border-color: var(--marvel-yellow);
+    transform: translate(-2px,-2px);
+    box-shadow: 6px 6px 0 rgba(0,0,0,0.4);
+    color: var(--marvel-yellow);
+  }
+  .btn-answer:active { transform: translate(2px,2px); box-shadow: 2px 2px 0 rgba(0,0,0,0.4); }
+  .btn-answer.correct-ans {
+    background: linear-gradient(135deg, #1a5c34, #27ae60);
+    border-color: #5dfc8d; color: white;
+  }
+  .btn-answer.wrong-ans {
+    background: linear-gradient(135deg, #7b1111, #c0392b);
+    border-color: #ff7070; color: white;
+  }
+
+  /* VICTORY */
+  .victory-screen { text-align: center; padding: 10px; }
+  .victory-marvel { display: none; }
+  .victory-marvel.active { display: block; }
+  .victory-olympiakos { display: none; }
+  .victory-olympiakos.active { display: block; }
+  .victory-title {
+    font-size: clamp(1.5rem, 5vw, 2.8rem);
+    font-weight: 900;
+    text-transform: uppercase;
+    line-height: 1.2;
+    margin: 10px 0;
+    letter-spacing: 2px;
+  }
+  .victory-card {
+    background: linear-gradient(135deg, #1a0a0a, #3d0000);
+    border: 5px solid var(--marvel-red);
+    border-radius: 20px;
+    padding: 30px 20px;
+    box-shadow: 0 0 60px rgba(226,54,54,0.5);
+    position: relative;
+    overflow: hidden;
+  }
+  .victory-card.olympiakos-card {
+    background: linear-gradient(135deg, #8b0000, #cc0000);
+    border-color: white;
+    box-shadow: 0 0 60px rgba(255,255,255,0.4), 0 0 100px rgba(226,54,54,0.5);
+  }
+  .victory-card.joke-card {
+    background: linear-gradient(135deg, #0a2a0a, #1a5c1a);
+    border-color: #27ae60;
+    box-shadow: 0 0 60px rgba(39,174,96,0.5);
+  }
+  .trophy-emoji {
+    font-size: 4rem;
+    display: block;
+    animation: trophyBounce 0.8s ease-in-out infinite alternate;
+    margin-bottom: 8px;
+  }
+  @keyframes trophyBounce {
+    from { transform: scale(1) rotate(-5deg); }
+    to   { transform: scale(1.15) rotate(5deg); }
+  }
+
+  /* CONFETTI */
+  .confetti-container {
+    position: fixed; inset: 0;
+    pointer-events: none; z-index: 100; overflow: hidden;
+  }
+  .confetti-piece {
+    position: absolute;
+    width: 12px; height: 18px;
+    border-radius: 2px;
+    top: -20px;
+    animation: confettiFall linear forwards;
+  }
+  @keyframes confettiFall {
+    0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+  }
+
+  /* WAIT */
+  .wait-screen { text-align: center; padding: 60px 20px; }
+  .wait-text {
+    font-size: clamp(1.4rem, 4vw, 2.2rem);
+    color: white; font-weight: 900;
+    animation: waitPulse 0.6s ease-in-out infinite alternate;
+  }
+  @keyframes waitPulse {
+    from { opacity: 0.5; transform: scale(0.98); }
+    to   { opacity: 1;   transform: scale(1.02); }
+  }
+
+  /* EASTER EGG INDICATOR */
+  .joke-indicator {
+    position: fixed; top: 10px; left: 10px;
+    font-size: 1.5rem; opacity: 0; transition: opacity 0.5s;
+    z-index: 999; pointer-events: none;
+  }
+  .joke-indicator.visible { opacity: 1; }
+
+  /* SECRET AREA — completely invisible */
+  .secret-area {
+    position: fixed; bottom: 0; left: 0;
+    width: 40px; height: 40px;
+    z-index: 9999; cursor: default;
+    -webkit-tap-highlight-color: transparent;
+    background: transparent;
+    border: none; outline: none;
+  }
+
+  @media (max-width: 480px) {
+    .answers-grid { grid-template-columns: 1fr; }
+    .screen { padding: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="joke-indicator" id="jokeIndicator">😈</div>
+<div class="secret-area" id="secretArea"></div>
+<div class="confetti-container" id="confettiContainer"></div>
+
+<!-- WELCOME SCREEN -->
+<div class="screen active" id="welcomeScreen">
+  <div class="marvel-logo">
+    <div class="logo-box">MARVEL</div>
+  </div>
+  <div class="welcome-card">
+    <div style="font-size:3.5rem;margin-bottom:8px;animation:heroBounce 1.2s ease-in-out infinite alternate">⚡</div>
+    <h1 class="welcome-title">⚡ Η ΑΠΟΣΤΟΛΗ ΤΟΥ ΚΩΝΣΤΑΝΤΙΝΟΥ ⚡</h1>
+    <p class="welcome-subtitle">Μπορείς να γίνεις Αληθινός Ήρωας της Marvel;</p>
+    <p class="welcome-intro">Απάντησε σε 15 ερωτήσεις και αποδείξτο!</p>
+    <button class="btn-main" onclick="startQuiz()">🚀 ΕΝΑΡΞΗ ΑΠΟΣΤΟΛΗΣ</button>
+  </div>
+</div>
+
+<!-- QUIZ SCREEN -->
+<div class="screen" id="quizScreen">
+  <div class="quiz-header">
+    <span class="hero-emoji" id="heroEmoji">🕷️</span>
+    <div class="progress-label" id="progressLabel">Ερώτηση 1 από 15</div>
+    <div class="progress-bar-outer">
+      <div class="progress-bar-inner" id="progressBar" style="width:0%"></div>
+    </div>
+  </div>
+  <div class="question-card" id="questionCard">
+    <div class="question-text" id="questionText"></div>
+    <div class="feedback-text" id="feedbackText"></div>
+  </div>
+  <div class="answers-grid" id="answersGrid"></div>
+</div>
+
+<!-- WAIT SCREEN -->
+<div class="screen" id="waitScreen">
+  <div class="wait-screen">
+    <div class="wait-text" id="waitText">⚡ ΦΟΡΤΩΣΗ ΕΠΙΒΡΑΒΕΥΣΗΣ... ⚡</div>
+  </div>
+</div>
+
+<!-- VICTORY SCREEN -->
+<div class="screen" id="victoryScreen">
+  <div class="victory-screen">
+
+    <!-- Step 1: Marvel victory (3 sec) -->
+    <div class="victory-marvel" id="victoryMarvel">
+      <div class="victory-card">
+        <span class="trophy-emoji">⚡</span>
+        <div class="victory-title" style="color:var(--marvel-yellow);text-shadow:3px 3px 0 #c0961a,0 0 20px rgba(240,195,31,0.7)">
+          ⚡ ΑΠΙΣΤΕΥΤΟ ΚΩΝΣΤΑΝΤΙΝΕ! ⚡
+        </div>
+        <p style="color:#ccc;font-size:1.2rem;margin:12px 0;font-weight:700">
+          Είσαι <span style="color:var(--marvel-yellow);font-size:1.5rem">ΑΛΗΘΙΝΟΣ ΗΡΩΑΣ</span> ΤΗΣ MARVEL!
+        </p>
+      </div>
+    </div>
+
+    <!-- Step 2: "But wait..." -->
+    <div class="victory-marvel" id="victoryWait">
+      <div style="padding:60px 20px;text-align:center">
+        <div style="font-size:clamp(1.5rem,5vw,2.5rem);color:white;font-weight:900;animation:waitPulse 0.5s ease-in-out infinite alternate">
+          🔴⚪ ΑΛΛΑ ΠΕΡΙΜΕΝΕ... ⚪🔴
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3: The real reveal -->
+    <div class="victory-olympiakos" id="victoryOlymp">
+      <div class="victory-card olympiakos-card" id="victoryOlympCard">
+        <span class="trophy-emoji" id="finalTrophy">🏆</span>
+        <div class="victory-title" id="finalTitle" style="color:white;text-shadow:3px 3px 0 rgba(0,0,0,0.5)">
+          🏆 ΜΠΡΑΒΟ ΚΩΝΣΤΑΝΤΙΝΕ! 🏆
+        </div>
+        <div style="font-size:clamp(1rem,3.5vw,1.5rem);font-weight:900;margin:10px 0;line-height:1.4" id="finalSubtitle">
+          <span style="color:white">ΕΙΣΑΙ Ο ΜΕΓΑΛΥΤΕΡΟΣ<br>ΟΠΑΔΟΣ ΤΟΥ ΟΛΥΜΠΙΑΚΟΥ!</span>
+        </div>
+        <div style="font-size:clamp(1.1rem,3.5vw,1.8rem);font-weight:900;margin:12px 0;color:var(--marvel-yellow)" id="finalTagline">
+          ΕΙΣΑΙ Ο ΠΙΟ ΓΑΥΡΟΣ ΑΠΟ ΟΛΟΥΣ! 🔴⚪🔴
+        </div>
+        <button class="btn-main" onclick="restartQuiz()" style="margin-top:20px;background:linear-gradient(135deg,#cc0000,#990000)">
+          🔄 ΠΑΙΞΕ ΞΑΝΑ
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* ── WEB AUDIO ENGINE ── */
+var audioCtx = null;
+function getCtx() {
+  if (!audioCtx) {
+    try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
+  }
+  if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
+function tone(freq, dur, type, vol, delay) {
+  var ctx = getCtx(); if (!ctx) return;
+  var osc = ctx.createOscillator();
+  var gain = ctx.createGain();
+  osc.connect(gain); gain.connect(ctx.destination);
+  osc.type = type || 'sine';
+  osc.frequency.setValueAtTime(freq, ctx.currentTime + (delay||0));
+  gain.gain.setValueAtTime(0, ctx.currentTime + (delay||0));
+  gain.gain.linearRampToValueAtTime(vol||0.3, ctx.currentTime + (delay||0) + 0.01);
+  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + (delay||0) + dur);
+  osc.start(ctx.currentTime + (delay||0));
+  osc.stop(ctx.currentTime + (delay||0) + dur + 0.05);
+}
+function playCorrect() {
+  tone(523, 0.12, 'square', 0.25, 0);
+  tone(659, 0.12, 'square', 0.25, 0.12);
+  tone(784, 0.22, 'square', 0.3, 0.24);
+}
+function playWrong() {
+  tone(300, 0.1, 'sawtooth', 0.3, 0);
+  tone(200, 0.25, 'sawtooth', 0.25, 0.1);
+}
+function playFanfare() {
+  var n=[[523,0.15],[587,0.15],[659,0.15],[784,0.3],[659,0.1],[784,0.5]];
+  var t=0; n.forEach(function(x){tone(x[0],x[1],'square',0.3,t);t+=x[1];});
+}
+function playOlymp() {
+  var n=[[784,0.12],[880,0.12],[988,0.12],[1047,0.25],[880,0.1],[988,0.12],[1047,0.35],[1175,0.5]];
+  var t=0; n.forEach(function(x){tone(x[0],x[1],'square',0.3,t);t+=x[1];});
+}
+
+/* ── QUESTIONS ── */
+var heroEmojis = ['🕷️','🤖','💚','⚡','🛡️'];
+var questions = [
+  {q:"Πόσο κάνει 5 + 3;", a:["6","7","8","9"], c:2},
+  {q:"Αν βάλεις πολύ αλάτι στο φαγητό, γίνεται...", a:["Γλυκό","Αλμυρό","Πικρό","Ξινό"], c:1},
+  {q:"Ποιος ήρωας της Marvel φοράει κόκκινη και χρυσή στολή;", a:["Spider-Man","Thor","Iron Man","Hulk"], c:2},
+  {q:"34 + 75 = ;", a:["99","109","108","100"], c:1},
+  {q:"Τι συμβαίνει αν αφήσεις παγωτό στον ήλιο;", a:["Παγώνει","Λιώνει","Μεγαλώνει","Πετάει"], c:1},
+  {q:"Ο Hulk, όταν θυμώνει, τι χρώμα γίνεται;", a:["Κόκκινος","Μπλε","Πράσινος","Κίτρινος"], c:2},
+  {q:"Έχεις 20 ευρώ και αγοράζεις κάτι που κοστίζει 13 ευρώ. Πόσα σου μένουν;", a:["5","6","7","8"], c:2},
+  {q:"Ποιο από αυτά ΔΕΝ είναι ζώο;", a:["Σκύλος","Γάτα","Τριαντάφυλλο","Ελέφαντας"], c:2},
+  {q:"Ο Spider-Man από πού πήρε τις δυνάμεις του;", a:["Από έναν κεραυνό","Τον δάγκωσε μια ραδιενεργός αράχνη","Έπιε ένα μαγικό φίλτρο","Τον χτύπησε μετεωρίτης"], c:1},
+  {q:"Πόσες εποχές έχει ο χρόνος;", a:["2","3","4","5"], c:2},
+  {q:"17 × 2 = ;", a:["32","34","36","38"], c:1},
+  {q:"Αν μια γάτα έχει 4 πόδια, πόσα πόδια έχουν 3 γάτες;", a:["8","10","12","16"], c:2},
+  {q:"Ένα τρένο φεύγει από Αθήνα στις 10:00 και φτάνει στη Θεσσαλονίκη μετά από 4 ώρες. Τι ώρα φτάνει;", a:["13:00","14:00","15:00","16:00"], c:1},
+  {q:"Ο Thor είναι θεός του...", a:["Ήλιου","Πολέμου","Κεραυνού","Φωτός"], c:2},
+  {q:"Τι είναι το πιο σκληρό πράγμα στον κόσμο;", a:["Σίδηρος","Χρυσός","Διαμάντι","Βράχος"], c:2}
+];
+
+/* ── STATE ── */
+var currentQ = 0;
+var locked = false;
+var jokeMode = false;
+var secretClicks = 0;
+var secretTimer = null;
+
+/* ── EASTER EGG ── */
+document.getElementById('secretArea').addEventListener('click', function(){
+  clearTimeout(secretTimer);
+  secretClicks++;
+  if (secretClicks >= 3) {
+    jokeMode = !jokeMode;
+    secretClicks = 0;
+    document.body.classList.toggle('joke-mode', jokeMode);
+    var ind = document.getElementById('jokeIndicator');
+    ind.classList.toggle('visible', jokeMode);
+  }
+  secretTimer = setTimeout(function(){ secretClicks = 0; }, 2000);
+});
+
+/* ── SCREEN NAV ── */
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
+  document.getElementById(id).classList.add('active');
+}
+
+/* ── QUIZ ── */
+function startQuiz() {
+  getCtx();
+  currentQ = 0;
+  showScreen('quizScreen');
+  renderQ();
+}
+
+function renderQ() {
+  var q = questions[currentQ];
+  locked = false;
+  var hi = Math.floor(currentQ / 3) % heroEmojis.length;
+  document.getElementById('heroEmoji').textContent = heroEmojis[hi];
+  document.getElementById('progressLabel').textContent = 'Ερώτηση ' + (currentQ+1) + ' από 15';
+  document.getElementById('progressBar').style.width = ((currentQ/15)*100) + '%';
+  document.getElementById('questionText').textContent = q.q;
+  var fb = document.getElementById('feedbackText');
+  fb.textContent = ''; fb.className = 'feedback-text';
+  var card = document.getElementById('questionCard');
+  card.className = 'question-card';
+  var grid = document.getElementById('answersGrid');
+  grid.innerHTML = '';
+  q.a.forEach(function(ans, idx){
+    var btn = document.createElement('button');
+    btn.className = 'btn-answer';
+    btn.textContent = ans;
+    btn.addEventListener('click', function(){ handleAnswer(idx); });
+    grid.appendChild(btn);
+  });
+}
+
+function handleAnswer(idx) {
+  if (locked) return;
+  locked = true;
+  var q = questions[currentQ];
+  var btns = document.querySelectorAll('.btn-answer');
+  var card = document.getElementById('questionCard');
+  var fb = document.getElementById('feedbackText');
+
+  if (idx === q.c) {
+    btns[idx].classList.add('correct-ans');
+    card.classList.add('flash-correct');
+    fb.textContent = '✅ ΣΩΣΤΟ ΗΡΩΑ!';
+    fb.className = 'feedback-text correct';
+    playCorrect();
+    currentQ++;
+    if (currentQ >= questions.length) {
+      setTimeout(showVictory, 900);
+    } else {
+      setTimeout(renderQ, 800);
+    }
+  } else {
+    btns[idx].classList.add('wrong-ans');
+    card.classList.add('flash-wrong');
+    fb.textContent = '❌ Όχι! Δοκίμασε ξανά!';
+    fb.className = 'feedback-text wrong';
+    playWrong();
+    setTimeout(renderQ, 900);
+  }
+}
+
+/* ── VICTORY ── */
+function showVictory() {
+  showScreen('waitScreen');
+  playFanfare();
+  setTimeout(function(){
+    showScreen('victoryScreen');
+    document.getElementById('victoryMarvel').classList.add('active');
+    document.getElementById('victoryWait').classList.remove('active');
+    document.getElementById('victoryOlymp').classList.remove('active');
+    setTimeout(function(){
+      document.getElementById('victoryMarvel').classList.remove('active');
+      document.getElementById('victoryWait').classList.add('active');
+      setTimeout(function(){
+        document.getElementById('victoryWait').classList.remove('active');
+        document.getElementById('victoryOlymp').classList.add('active');
+        playOlymp();
+        applyFinal();
+        spawnConfetti();
+      }, 1200);
+    }, 3000);
+  }, 600);
+}
+
+function applyFinal() {
+  var card = document.getElementById('victoryOlympCard');
+  var trophy = document.getElementById('finalTrophy');
+  var title = document.getElementById('finalTitle');
+  var sub = document.getElementById('finalSubtitle');
+  var tag = document.getElementById('finalTagline');
+  if (jokeMode) {
+    card.className = 'victory-card joke-card';
+    trophy.textContent = '😂';
+    title.innerHTML = '<span style="color:#2ecc71">😂 ΠΛΑΚΑ ΚΑΝΩ ΚΩΝΣΤΑΝΤΙΝΕ! 😂</span>';
+    sub.innerHTML = '<span style="color:#5dfc8d">ΕΙΣΑΙ Ο ΠΙΟ ΜΕΓΑΛΟΣ<br>ΦΙΛΑΘΛΟΣ ΤΟΥ ΠΑΝΑΘΗΝΑΙΚΟΥ!</span>';
+    tag.style.color = '#2ecc71';
+    tag.textContent = 'Ο ΠΙΟ ΜΕΓΑΛΟΣ ΒΑΖΕΛΟΣ ΑΠΟ ΟΛΟΥΣ! 🟢🟢🟢';
+  } else {
+    card.className = 'victory-card olympiakos-card';
+    trophy.textContent = '🏆';
+    title.innerHTML = '<span style="color:white;text-shadow:3px 3px 0 rgba(0,0,0,0.5)">🏆 ΜΠΡΑΒΟ ΚΩΝΣΤΑΝΤΙΝΕ! 🏆</span>';
+    sub.innerHTML = '<span style="color:white">ΕΙΣΑΙ Ο ΜΕΓΑΛΥΤΕΡΟΣ<br>ΟΠΑΔΟΣ ΤΟΥ ΟΛΥΜΠΙΑΚΟΥ!</span>';
+    tag.style.color = 'var(--marvel-yellow)';
+    tag.textContent = 'ΕΙΣΑΙ Ο ΠΙΟ ΓΑΥΡΟΣ ΑΠΟ ΟΛΟΥΣ! 🔴⚪🔴';
+  }
+}
+
+function spawnConfetti() {
+  var c = document.getElementById('confettiContainer');
+  c.innerHTML = '';
+  var cols = jokeMode
+    ? ['#27ae60','#2ecc71','#1abc9c','#ffffff','#a8e063']
+    : ['#cc0000','#ffffff','#e23636','#f0c31f','#ff6b6b'];
+  for (var i=0; i<80; i++) {
+    var p = document.createElement('div');
+    p.className = 'confetti-piece';
+    var col = cols[Math.floor(Math.random()*cols.length)];
+    var dur = (2 + Math.random()*3).toFixed(2);
+    var del = (Math.random()*1.5).toFixed(2);
+    p.style.cssText = 'left:'+Math.floor(Math.random()*100)+'%;'
+      +'width:'+(8+Math.floor(Math.random()*10))+'px;'
+      +'height:'+(12+Math.floor(Math.random()*14))+'px;'
+      +'background:'+col+';'
+      +'animation-duration:'+dur+'s;'
+      +'animation-delay:'+del+'s;'
+      +'transform:rotate('+Math.floor(Math.random()*360)+'deg);'
+      +'border-radius:'+(Math.random()>0.5?'50%':'2px')+';';
+    c.appendChild(p);
+  }
+  setTimeout(function(){ c.innerHTML=''; }, 5500);
+}
+
+function restartQuiz() {
+  currentQ = 0;
+  document.getElementById('victoryMarvel').classList.remove('active');
+  document.getElementById('victoryWait').classList.remove('active');
+  document.getElementById('victoryOlymp').classList.remove('active');
+  document.getElementById('confettiContainer').innerHTML = '';
+  showScreen('welcomeScreen');
+}
+</script>
+</body>
+</html>
