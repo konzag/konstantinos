@@ -643,16 +643,9 @@ function spawnConfetti() {
 
 function restartQuiz() {
   replayCount++;
-  if (replayCount === 3) {
-    jokeMode = true;
-    document.body.classList.add('joke-mode');
-    document.getElementById('jokeIndicator').classList.add('visible');
-  } else if (replayCount === 6) {
-    jokeMode = false;
-    replayCount = 0;
-    document.body.classList.remove('joke-mode');
-    document.getElementById('jokeIndicator').classList.remove('visible');
-  }
+  jokeMode = (replayCount % 2 === 1);
+  document.body.classList.toggle('joke-mode', jokeMode);
+  document.getElementById('jokeIndicator').classList.toggle('visible', jokeMode);
   currentQ = 0;
   document.getElementById('victoryMarvel').classList.remove('active');
   document.getElementById('victoryWait').classList.remove('active');
