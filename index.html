@@ -313,14 +313,6 @@
     to   { opacity: 1;   transform: scale(1.02); }
   }
 
-  /* EASTER EGG INDICATOR */
-  .joke-indicator {
-    position: fixed; top: 10px; left: 10px;
-    font-size: 1.5rem; opacity: 0; transition: opacity 0.5s;
-    z-index: 999; pointer-events: none;
-  }
-  .joke-indicator.visible { opacity: 1; }
-
   @media (max-width: 480px) {
     .answers-grid { grid-template-columns: 1fr; }
     .screen { padding: 12px; }
@@ -329,7 +321,6 @@
 </head>
 <body>
 
-<div class="joke-indicator" id="jokeIndicator">😈</div>
 <div class="confetti-container" id="confettiContainer"></div>
 
 <!-- WELCOME SCREEN -->
@@ -373,7 +364,7 @@
 <div class="screen" id="victoryScreen">
   <div class="victory-screen">
 
-    <!-- Step 1: Marvel victory (3 sec) -->
+    <!-- Phase 1: Marvel victory -->
     <div class="victory-marvel" id="victoryMarvel">
       <div class="victory-card">
         <span class="trophy-emoji">⚡</span>
@@ -386,7 +377,7 @@
       </div>
     </div>
 
-    <!-- Step 2: "But wait..." -->
+    <!-- Phase 2: "But wait..." -->
     <div class="victory-marvel" id="victoryWait">
       <div style="padding:60px 20px;text-align:center">
         <div style="font-size:clamp(1.5rem,5vw,2.5rem);color:white;font-weight:900;animation:waitPulse 0.5s ease-in-out infinite alternate">
@@ -395,20 +386,36 @@
       </div>
     </div>
 
-    <!-- Step 3: The real reveal -->
+    <!-- Phase 3: Olympiakos (auto-transitions after 3 seconds) -->
     <div class="victory-olympiakos" id="victoryOlymp">
-      <div class="victory-card olympiakos-card" id="victoryOlympCard">
-        <span class="trophy-emoji" id="finalTrophy">🏆</span>
-        <div class="victory-title" id="finalTitle" style="color:white;text-shadow:3px 3px 0 rgba(0,0,0,0.5)">
+      <div class="victory-card olympiakos-card">
+        <span class="trophy-emoji">🏆</span>
+        <div class="victory-title" style="color:white;text-shadow:3px 3px 0 rgba(0,0,0,0.5)">
           🏆 ΜΠΡΑΒΟ ΚΩΝΣΤΑΝΤΙΝΕ! 🏆
         </div>
-        <div style="font-size:clamp(1rem,3.5vw,1.5rem);font-weight:900;margin:10px 0;line-height:1.4" id="finalSubtitle">
+        <div style="font-size:clamp(1rem,3.5vw,1.5rem);font-weight:900;margin:10px 0;line-height:1.4">
           <span style="color:white">ΕΙΣΑΙ Ο ΜΕΓΑΛΥΤΕΡΟΣ<br>ΟΠΑΔΟΣ ΤΟΥ ΟΛΥΜΠΙΑΚΟΥ!</span>
         </div>
-        <div style="font-size:clamp(1.1rem,3.5vw,1.8rem);font-weight:900;margin:12px 0;color:var(--marvel-yellow)" id="finalTagline">
+        <div style="font-size:clamp(1.1rem,3.5vw,1.8rem);font-weight:900;margin:12px 0;color:var(--marvel-yellow)">
           ΕΙΣΑΙ Ο ΠΙΟ ΓΑΥΡΟΣ ΑΠΟ ΟΛΟΥΣ! 🔴⚪🔴
         </div>
-        <button class="btn-main" onclick="restartQuiz()" style="margin-top:20px;background:linear-gradient(135deg,#cc0000,#990000)">
+      </div>
+    </div>
+
+    <!-- Phase 4: Joke reveal (green, has the replay button) -->
+    <div class="victory-olympiakos" id="victoryJoke">
+      <div class="victory-card joke-card">
+        <span class="trophy-emoji">😈</span>
+        <div class="victory-title" style="color:#2ecc71;text-shadow:3px 3px 0 rgba(0,0,0,0.5)">
+          😂 ΠΛΑΚΑ ΚΑΝΩ ΚΩΝΣΤΑΝΤΙΝΕ! 😂
+        </div>
+        <div style="font-size:clamp(1rem,3.5vw,1.5rem);font-weight:900;margin:10px 0;line-height:1.4">
+          <span style="color:#5dfc8d">ΕΙΣΑΙ Ο ΠΙΟ ΜΕΓΑΛΟΣ<br>ΦΙΛΑΘΛΟΣ ΤΟΥ ΠΑΝΑΘΗΝΑΙΚΟΥ!</span>
+        </div>
+        <div style="font-size:clamp(1.1rem,3.5vw,1.8rem);font-weight:900;margin:12px 0;color:#2ecc71">
+          Ο ΠΙΟ ΜΕΓΑΛΟΣ ΒΑΖΕΛΟΣ ΑΠΟ ΟΛΟΥΣ! 🟢🟢🟢
+        </div>
+        <button class="btn-main" onclick="restartQuiz()" style="margin-top:20px;background:linear-gradient(135deg,#27ae60,#1a7a42)">
           🔄 ΠΑΙΞΕ ΞΑΝΑ
         </button>
       </div>
@@ -481,8 +488,6 @@ var questions = [
 /* ── STATE ── */
 var currentQ = 0;
 var locked = false;
-var jokeMode = false;
-var replayCount = 0;
 var shuffledQuestions = [];
 
 /* ── SCREEN NAV ── */
@@ -574,54 +579,43 @@ function handleAnswer(idx) {
 function showVictory() {
   showScreen('waitScreen');
   playFanfare();
-  setTimeout(function(){
+
+  setTimeout(function() {
+    // Phase 1: Marvel screen (3 sec)
     showScreen('victoryScreen');
     document.getElementById('victoryMarvel').classList.add('active');
     document.getElementById('victoryWait').classList.remove('active');
     document.getElementById('victoryOlymp').classList.remove('active');
-    setTimeout(function(){
+    document.getElementById('victoryJoke').classList.remove('active');
+
+    setTimeout(function() {
+      // Phase 2: "But wait..." (1.2 sec)
       document.getElementById('victoryMarvel').classList.remove('active');
       document.getElementById('victoryWait').classList.add('active');
-      setTimeout(function(){
+
+      setTimeout(function() {
+        // Phase 3: Olympiakos (3 sec, then auto-transitions to joke)
         document.getElementById('victoryWait').classList.remove('active');
         document.getElementById('victoryOlymp').classList.add('active');
         playOlymp();
-        applyFinal();
-        spawnConfetti();
+        spawnConfetti(['#cc0000','#ffffff','#e23636','#f0c31f','#ff6b6b']);
+
+        setTimeout(function() {
+          // Phase 4: Joke reveal — green background, 😈 on card
+          document.getElementById('victoryOlymp').classList.remove('active');
+          document.getElementById('victoryJoke').classList.add('active');
+          document.body.classList.add('joke-mode');
+          spawnConfetti(['#27ae60','#2ecc71','#1abc9c','#ffffff','#a8e063']);
+        }, 3000);
+
       }, 1200);
     }, 3000);
   }, 600);
 }
 
-function applyFinal() {
-  var card = document.getElementById('victoryOlympCard');
-  var trophy = document.getElementById('finalTrophy');
-  var title = document.getElementById('finalTitle');
-  var sub = document.getElementById('finalSubtitle');
-  var tag = document.getElementById('finalTagline');
-  if (jokeMode) {
-    card.className = 'victory-card joke-card';
-    trophy.textContent = '😂';
-    title.innerHTML = '<span style="color:#2ecc71">😂 ΠΛΑΚΑ ΚΑΝΩ ΚΩΝΣΤΑΝΤΙΝΕ! 😂</span>';
-    sub.innerHTML = '<span style="color:#5dfc8d">ΕΙΣΑΙ Ο ΠΙΟ ΜΕΓΑΛΟΣ<br>ΦΙΛΑΘΛΟΣ ΤΟΥ ΠΑΝΑΘΗΝΑΙΚΟΥ!</span>';
-    tag.style.color = '#2ecc71';
-    tag.textContent = 'Ο ΠΙΟ ΜΕΓΑΛΟΣ ΒΑΖΕΛΟΣ ΑΠΟ ΟΛΟΥΣ! 🟢🟢🟢';
-  } else {
-    card.className = 'victory-card olympiakos-card';
-    trophy.textContent = '🏆';
-    title.innerHTML = '<span style="color:white;text-shadow:3px 3px 0 rgba(0,0,0,0.5)">🏆 ΜΠΡΑΒΟ ΚΩΝΣΤΑΝΤΙΝΕ! 🏆</span>';
-    sub.innerHTML = '<span style="color:white">ΕΙΣΑΙ Ο ΜΕΓΑΛΥΤΕΡΟΣ<br>ΟΠΑΔΟΣ ΤΟΥ ΟΛΥΜΠΙΑΚΟΥ!</span>';
-    tag.style.color = 'var(--marvel-yellow)';
-    tag.textContent = 'ΕΙΣΑΙ Ο ΠΙΟ ΓΑΥΡΟΣ ΑΠΟ ΟΛΟΥΣ! 🔴⚪🔴';
-  }
-}
-
-function spawnConfetti() {
+function spawnConfetti(cols) {
   var c = document.getElementById('confettiContainer');
   c.innerHTML = '';
-  var cols = jokeMode
-    ? ['#27ae60','#2ecc71','#1abc9c','#ffffff','#a8e063']
-    : ['#cc0000','#ffffff','#e23636','#f0c31f','#ff6b6b'];
   for (var i=0; i<80; i++) {
     var p = document.createElement('div');
     p.className = 'confetti-piece';
@@ -642,13 +636,11 @@ function spawnConfetti() {
 }
 
 function restartQuiz() {
-  replayCount++;
-  jokeMode = (replayCount % 2 === 1);
-  document.body.classList.toggle('joke-mode', jokeMode);
-  document.getElementById('jokeIndicator').classList.toggle('visible', jokeMode);
+  document.body.classList.remove('joke-mode');
   document.getElementById('victoryMarvel').classList.remove('active');
   document.getElementById('victoryWait').classList.remove('active');
   document.getElementById('victoryOlymp').classList.remove('active');
+  document.getElementById('victoryJoke').classList.remove('active');
   document.getElementById('confettiContainer').innerHTML = '';
   startQuiz();
 }
