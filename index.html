@@ -321,16 +321,6 @@
   }
   .joke-indicator.visible { opacity: 1; }
 
-  /* SECRET AREA — completely invisible */
-  .secret-area {
-    position: fixed; bottom: 0; left: 0;
-    width: 40px; height: 40px;
-    z-index: 9999; cursor: default;
-    -webkit-tap-highlight-color: transparent;
-    background: transparent;
-    border: none; outline: none;
-  }
-
   @media (max-width: 480px) {
     .answers-grid { grid-template-columns: 1fr; }
     .screen { padding: 12px; }
@@ -340,7 +330,6 @@
 <body>
 
 <div class="joke-indicator" id="jokeIndicator">😈</div>
-<div class="secret-area" id="secretArea"></div>
 <div class="confetti-container" id="confettiContainer"></div>
 
 <!-- WELCOME SCREEN -->
@@ -493,22 +482,8 @@ var questions = [
 var currentQ = 0;
 var locked = false;
 var jokeMode = false;
-var secretClicks = 0;
-var secretTimer = null;
-
-/* ── EASTER EGG ── */
-document.getElementById('secretArea').addEventListener('click', function(){
-  clearTimeout(secretTimer);
-  secretClicks++;
-  if (secretClicks >= 3) {
-    jokeMode = !jokeMode;
-    secretClicks = 0;
-    document.body.classList.toggle('joke-mode', jokeMode);
-    var ind = document.getElementById('jokeIndicator');
-    ind.classList.toggle('visible', jokeMode);
-  }
-  secretTimer = setTimeout(function(){ secretClicks = 0; }, 2000);
-});
+var replayCount = 0;
+var shuffledQuestions = [];
 
 /* ── SCREEN NAV ── */
 function showScreen(id) {
@@ -516,16 +491,34 @@ function showScreen(id) {
   document.getElementById(id).classList.add('active');
 }
 
+/* ── SHUFFLE ── */
+function shuffle(arr) {
+  var a = arr.slice();
+  for (var i = a.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+  }
+  return a;
+}
+function buildShuffledQuestions() {
+  return shuffle(questions).map(function(q) {
+    var correctVal = q.a[q.c];
+    var shuffledA = shuffle(q.a);
+    return { q: q.q, a: shuffledA, c: shuffledA.indexOf(correctVal) };
+  });
+}
+
 /* ── QUIZ ── */
 function startQuiz() {
   getCtx();
   currentQ = 0;
+  shuffledQuestions = buildShuffledQuestions();
   showScreen('quizScreen');
   renderQ();
 }
 
 function renderQ() {
-  var q = questions[currentQ];
+  var q = shuffledQuestions[currentQ];
   locked = false;
   var hi = Math.floor(currentQ / 3) % heroEmojis.length;
   document.getElementById('heroEmoji').textContent = heroEmojis[hi];
@@ -550,7 +543,7 @@ function renderQ() {
 function handleAnswer(idx) {
   if (locked) return;
   locked = true;
-  var q = questions[currentQ];
+  var q = shuffledQuestions[currentQ];
   var btns = document.querySelectorAll('.btn-answer');
   var card = document.getElementById('questionCard');
   var fb = document.getElementById('feedbackText');
@@ -562,7 +555,7 @@ function handleAnswer(idx) {
     fb.className = 'feedback-text correct';
     playCorrect();
     currentQ++;
-    if (currentQ >= questions.length) {
+    if (currentQ >= shuffledQuestions.length) {
       setTimeout(showVictory, 900);
     } else {
       setTimeout(renderQ, 800);
@@ -649,6 +642,17 @@ function spawnConfetti() {
 }
 
 function restartQuiz() {
+  replayCount++;
+  if (replayCount === 3) {
+    jokeMode = true;
+    document.body.classList.add('joke-mode');
+    document.getElementById('jokeIndicator').classList.add('visible');
+  } else if (replayCount === 6) {
+    jokeMode = false;
+    replayCount = 0;
+    document.body.classList.remove('joke-mode');
+    document.getElementById('jokeIndicator').classList.remove('visible');
+  }
   currentQ = 0;
   document.getElementById('victoryMarvel').classList.remove('active');
   document.getElementById('victoryWait').classList.remove('active');
