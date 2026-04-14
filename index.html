@@ -646,12 +646,11 @@ function restartQuiz() {
   jokeMode = (replayCount % 2 === 1);
   document.body.classList.toggle('joke-mode', jokeMode);
   document.getElementById('jokeIndicator').classList.toggle('visible', jokeMode);
-  currentQ = 0;
   document.getElementById('victoryMarvel').classList.remove('active');
   document.getElementById('victoryWait').classList.remove('active');
   document.getElementById('victoryOlymp').classList.remove('active');
   document.getElementById('confettiContainer').innerHTML = '';
-  showScreen('welcomeScreen');
+  startQuiz();
 }
 </script>
 </body>
