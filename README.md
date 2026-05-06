@@ -1,5 +1,12 @@
 # ⚡ Η Αποστολή του Κωνσταντίνου ⚡
 
+**Άνοιγμα online:** [https://konzag.github.io/konstantinos/](https://konzag.github.io/konstantinos/)
+
+**Python setup:**
+```bash
+python -m pip install -r requirements.txt
+```
+
 ```
     ██╗     ██╗ ██████╗ ██╗  ██╗████████╗███╗   ██╗██╗███╗   ██╗ ██████╗
     ██║     ██║██╔════╝ ██║  ██║╚══██╔══╝████╗  ██║██║████╗  ██║██╔════╝
