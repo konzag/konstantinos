@@ -1,34 +1,21 @@
-# konstantinos
+# Konstantinos — Claude Context
 
-## What is this
-A Marvel-themed quiz app built for Konstantinos (age 6, 1st grade).
-Two standalone programs — no server, no deployment, no dependencies except optional colorama.
+## Project
+Interactive Marvel-themed learning quiz for Konstantinos (6 years old).
+HTML + CSS + JS (browser) + Python (terminal). Public GitHub Pages site.
 
-## Files
-- `index.html` — Single-file browser quiz (Marvel heroes, 15 questions, Web Audio API, mobile-friendly)
-- `konstantinos.py` — Terminal quiz for Windows (10 questions, colorama for colors, winsound for audio, easter egg)
+## Live Site
+https://konzag.github.io/konstantinos/
 
 ## Stack
-- HTML + CSS + JavaScript (vanilla, no frameworks, no build step)
-- Python 3 (colorama optional, winsound built-in Windows)
+- index.html: Marvel quiz web game (15 questions, math + logic + Marvel heroes)
+- konstantinos.py: Python terminal program (Windows, colorama + winsound)
+- No backend, no deploy pipeline, no database
 
-## How to run
-```bash
-# Browser app — just double-click index.html
-# Terminal app
-pip install colorama   # optional
-python konstantinos.py
-```
-
-## Key facts
-- Target user: Konstantinos, age 6
-- Language: Greek UI throughout
-- No backend, no database, no deployment
-- Repo: konzag/konstantinos (GitHub Pages: konzag.github.io/konstantinos)
-- `.claude/` folder exists at repo root with Claude Code settings
-
-## Notes for Claude Code
-- Keep all UI text in Greek
-- Marvel theme must be preserved
-- Audio via Web Audio API only — no external files
-- colorama import must have graceful fallback (already implemented)
+## Rules
+- No auto-deploy needed (GitHub Pages serves static files automatically)
+- All content in Greek
+- Code must have extensive comments so Konstantinos can read it someday
+- Keep age-appropriate: 6 years old (Α' Δημοτικού), Marvel fan
+- Wrong answers repeat the question — no skipping
+- Never add server-side code or dependencies requiring installation
