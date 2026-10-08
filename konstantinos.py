@@ -4,6 +4,7 @@
 Για τον Κωνσταντίνο, Α' Δημοτικού
 """
 
+import random
 import sys
 import time
 
@@ -115,6 +116,11 @@ QUESTIONS = [
         "c": 2,
     },
     {
+        "q": "Ποιο από αυτά ΔΕΝ είναι ζώο;",
+        "a": ["Σκύλος", "Γάτα", "Τριαντάφυλλο", "Ελέφαντας"],
+        "c": 2,
+    },
+    {
         "q": "Ο Spider-Man από πού πήρε τις δυνάμεις του;",
         "a": [
             "Από έναν κεραυνό",
@@ -125,8 +131,28 @@ QUESTIONS = [
         "c": 1,
     },
     {
+        "q": "Πόσες εποχές έχει ο χρόνος;",
+        "a": ["2", "3", "4", "5"],
+        "c": 2,
+    },
+    {
+        "q": "17 × 2 = ;",
+        "a": ["32", "34", "36", "38"],
+        "c": 1,
+    },
+    {
         "q": "Αν μια γάτα έχει 4 πόδια, πόσα πόδια έχουν 3 γάτες;",
         "a": ["8", "10", "12", "16"],
+        "c": 2,
+    },
+    {
+        "q": "Ένα τρένο φεύγει από Αθήνα στις 10:00 και φτάνει στη Θεσσαλονίκη μετά από 4 ώρες. Τι ώρα φτάνει;",
+        "a": ["13:00", "14:00", "15:00", "16:00"],
+        "c": 1,
+    },
+    {
+        "q": "Ο Thor είναι θεός του...",
+        "a": ["Ήλιου", "Πολέμου", "Κεραυνού", "Φωτός"],
         "c": 2,
     },
     {
@@ -166,8 +192,7 @@ def welcome():
     print_white("  Είσαι έτοιμος για την ΑΠΟΣΤΟΛΗ ΤΗΣ MARVEL;")
     print()
     print_cyan("  [Πάτα ENTER για να ξεκινήσεις την αποστολή...]")
-    print_cyan("   > "),
-    sys.stdout.flush()
+    print(Fore.CYAN + Style.BRIGHT + "   > ", end="", flush=True)
 
     user_input = input().strip()
 
@@ -199,30 +224,44 @@ def run_quiz():
         print_yellow(f"  {hero} Ερώτηση {i+1} από {total}  [{bar}]")
         print()
 
+        # Ανακατεύουμε τις απαντήσεις, ώστε η σωστή να μην είναι πάντα στην ίδια θέση
+        answers = list(qdata["a"])
+        correct_text = answers[qdata["c"]]
+        random.shuffle(answers)
+        correct = answers.index(correct_text)
+        n = len(answers)
+
         while True:
             # Print question
             print_white(f"  ❓ {qdata['q']}")
             print()
-            for j, ans in enumerate(qdata["a"], 1):
+            for j, ans in enumerate(answers, 1):
                 print(Fore.CYAN + f"     {j}. {ans}")
             print()
-            print(Fore.WHITE + "  Απάντησέ μου (1-4): ", end="")
+            print(Fore.WHITE + f"  Απάντησέ μου (1-{n}): ", end="")
             sys.stdout.flush()
 
             try:
                 raw = input().strip()
+            except EOFError:
+                # Δεν υπάρχει πια είσοδος (π.χ. κλειστό terminal): σταματάμε,
+                # αλλιώς θα ρωτούσαμε για πάντα.
+                print()
+                sys.exit(0)
+
+            try:
                 choice = int(raw) - 1
-            except (ValueError, EOFError):
-                print_red("  ⚠️  Γράψε έναν αριθμό από 1 έως 4!")
+            except ValueError:
+                print_red(f"  ⚠️  Γράψε έναν αριθμό από 1 έως {n}!")
                 print()
                 continue
 
-            if choice < 0 or choice > 3:
-                print_red("  ⚠️  Γράψε έναν αριθμό από 1 έως 4!")
+            if choice < 0 or choice >= n:
+                print_red(f"  ⚠️  Γράψε έναν αριθμό από 1 έως {n}!")
                 print()
                 continue
 
-            if choice == qdata["c"]:
+            if choice == correct:
                 print()
                 print_green("  ✅ ΣΩΣΤΟ ΗΡΩΑ! 🎉")
                 happy_beep()
@@ -237,7 +276,7 @@ def run_quiz():
 
     # Final progress bar (100%)
     clear_section()
-    print_yellow("  ⚡ Ερώτηση 10 από 10  [████████████████████] 100%")
+    print_yellow(f"  ⚡ Ερώτηση {total} από {total}  [{'█' * 20}] 100%")
     print()
 
 
@@ -277,14 +316,15 @@ def victory():
 
 # ── MAIN ──────────────────────────────────────────────────────────────────────
 def main():
-    welcome()
-    run_quiz()
-    victory()
-    print_cyan("\n  Πάτα ENTER για έξοδο...")
     try:
+        welcome()
+        run_quiz()
+        victory()
+        print_cyan("\n  Πάτα ENTER για έξοδο...")
         input()
     except (EOFError, KeyboardInterrupt):
-        pass
+        # Ctrl+C ή κλειστή είσοδος: έξοδος χωρίς μήνυμα σφάλματος
+        print()
 
 
 if __name__ == "__main__":
