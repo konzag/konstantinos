@@ -535,8 +535,9 @@ function renderQ() {
   locked = false;
   var hi = Math.floor(currentQ / 3) % heroEmojis.length;
   document.getElementById('heroEmoji').textContent = heroEmojis[hi];
-  document.getElementById('progressLabel').textContent = 'Ερώτηση ' + (currentQ+1) + ' από 15';
-  document.getElementById('progressBar').style.width = ((currentQ/15)*100) + '%';
+  var total = shuffledQuestions.length;
+  document.getElementById('progressLabel').textContent = 'Ερώτηση ' + (currentQ+1) + ' από ' + total;
+  document.getElementById('progressBar').style.width = ((currentQ/total)*100) + '%';
   document.getElementById('questionText').textContent = q.q;
   var fb = document.getElementById('feedbackText');
   fb.textContent = ''; fb.className = 'feedback-text';
