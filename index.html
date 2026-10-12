@@ -129,6 +129,14 @@
   .btn-main:hover { transform: translate(-2px,-2px); box-shadow: 8px 8px 0 black; }
   .btn-main:active { transform: translate(3px,3px); box-shadow: 3px 3px 0 black; }
 
+  /* Προσβασιμότητα: καθαρό κίτρινο περίγραμμα όταν κάποιο κουμπί
+     επιλέγεται με το πληκτρολόγιο (Tab), ώστε να φαίνεται πού είμαστε. */
+  .btn-main:focus-visible,
+  .btn-answer:focus-visible {
+    outline: 4px solid var(--marvel-yellow);
+    outline-offset: 3px;
+  }
+
   /* QUIZ */
   .quiz-header { text-align: center; margin-bottom: 16px; }
   .hero-emoji { font-size: 3rem; display: block; animation: heroBounce 1s ease-in-out infinite alternate; }
@@ -199,6 +207,9 @@
     text-shadow: 2px 2px 0 rgba(0,0,0,0.5);
     margin-bottom: 8px;
   }
+  /* Η ερώτηση παίρνει focus από τον κώδικα (για τους αναγνώστες οθόνης),
+     αλλά δεν είναι κουμπί, οπότε δεν χρειάζεται περίγραμμα. */
+  .question-text:focus { outline: none; }
   .feedback-text {
     text-align: center;
     font-size: clamp(0.9rem, 2.5vw, 1.1rem);
@@ -209,7 +220,7 @@
     letter-spacing: 1px;
   }
   .feedback-text.correct { color: #5dfc8d; text-shadow: 0 0 10px #27ae60; }
-  .feedback-text.wrong   { color: #ff7070; text-shadow: 0 0 10px #e74c3c; }
+  .feedback-text.wrong   { color: #ff8a8a; text-shadow: 0 0 10px #e74c3c; }
   .answers-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -240,7 +251,7 @@
   }
   .btn-answer:active { transform: translate(2px,2px); box-shadow: 2px 2px 0 rgba(0,0,0,0.4); }
   .btn-answer.correct-ans {
-    background: linear-gradient(135deg, #1a5c34, #27ae60);
+    background: linear-gradient(135deg, #1a5c34, #1e8449); /* πιο σκούρο πράσινο: λευκά γράμματα ευανάγνωστα (WCAG AA) */
     border-color: #5dfc8d; color: white;
   }
   .btn-answer.wrong-ans {
@@ -321,6 +332,17 @@
     to   { opacity: 1;   transform: scale(1.02); }
   }
 
+  /* Προσβασιμότητα: αν η συσκευή ζητά «λιγότερη κίνηση»
+     (prefers-reduced-motion), σταματάμε τα κουνήματα, τα αναβοσβησίματα
+     και το κομφετί. Το παιχνίδι λειτουργεί ακριβώς το ίδιο. */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation: none !important;
+      transition: none !important;
+    }
+    .confetti-container { display: none; }
+  }
+
   @media (max-width: 480px) {
     .answers-grid { grid-template-columns: 1fr; }
     .screen { padding: 12px; }
@@ -337,7 +359,7 @@
     <div class="logo-box">MARVEL</div>
   </div>
   <div class="welcome-card">
-    <div style="font-size:3.5rem;margin-bottom:8px;animation:heroBounce 1.2s ease-in-out infinite alternate">⚡</div>
+    <div aria-hidden="true" style="font-size:3.5rem;margin-bottom:8px;animation:heroBounce 1.2s ease-in-out infinite alternate">⚡</div>
     <h1 class="welcome-title">⚡ Η ΑΠΟΣΤΟΛΗ ΤΟΥ ΚΩΝΣΤΑΝΤΙΝΟΥ ⚡</h1>
     <p class="welcome-subtitle">Μπορείς να γίνεις Αληθινός Ήρωας της Marvel;</p>
     <p class="welcome-intro">Απάντησε σε 15 ερωτήσεις και αποδείξτο!</p>
@@ -348,15 +370,18 @@
 <!-- QUIZ SCREEN -->
 <div class="screen" id="quizScreen">
   <div class="quiz-header">
-    <span class="hero-emoji" id="heroEmoji">🕷️</span>
+    <span class="hero-emoji" id="heroEmoji" aria-hidden="true">🕷️</span>
     <div class="progress-label" id="progressLabel">Ερώτηση 1 από 15</div>
     <div class="progress-bar-outer">
       <div class="progress-bar-inner" id="progressBar" style="width:0%"></div>
     </div>
   </div>
   <div class="question-card" id="questionCard">
-    <div class="question-text" id="questionText"></div>
-    <div class="feedback-text" id="feedbackText"></div>
+    <!-- tabindex="-1": ο κώδικας βάζει εδώ το focus σε κάθε νέα ερώτηση,
+         ώστε ο αναγνώστης οθόνης να τη διαβάσει και το Tab να πάει στις απαντήσεις -->
+    <div class="question-text" id="questionText" tabindex="-1"></div>
+    <!-- aria-live: ο αναγνώστης οθόνης ανακοινώνει αμέσως «Σωστό» ή «Δοκίμασε ξανά» -->
+    <div class="feedback-text" id="feedbackText" role="status" aria-live="assertive" aria-atomic="true"></div>
   </div>
   <div class="answers-grid" id="answersGrid"></div>
 </div>
@@ -370,12 +395,13 @@
 
 <!-- VICTORY SCREEN -->
 <div class="screen" id="victoryScreen">
-  <div class="victory-screen">
+  <!-- aria-live: οι φάσεις της νίκης αλλάζουν μόνες τους, οπότε ανακοινώνονται -->
+  <div class="victory-screen" aria-live="polite">
 
     <!-- Phase 1: Marvel victory -->
     <div class="victory-marvel" id="victoryMarvel">
       <div class="victory-card">
-        <span class="trophy-emoji">⚡</span>
+        <span class="trophy-emoji" aria-hidden="true">⚡</span>
         <div class="victory-title" style="color:var(--marvel-yellow);text-shadow:3px 3px 0 #c0961a,0 0 20px rgba(240,195,31,0.7)">
           ⚡ ΑΠΙΣΤΕΥΤΟ ΚΩΝΣΤΑΝΤΙΝΕ! ⚡
         </div>
@@ -397,14 +423,14 @@
     <!-- Phase 3: Olympiakos (auto-transitions after 3 seconds) -->
     <div class="victory-olympiakos" id="victoryOlymp">
       <div class="victory-card olympiakos-card">
-        <span class="trophy-emoji">🏆</span>
+        <span class="trophy-emoji" aria-hidden="true">🏆</span>
         <div class="victory-title" style="color:white;text-shadow:3px 3px 0 rgba(0,0,0,0.5)">
           🏆 ΜΠΡΑΒΟ ΚΩΝΣΤΑΝΤΙΝΕ! 🏆
         </div>
         <div style="font-size:clamp(1rem,3.5vw,1.5rem);font-weight:900;margin:10px 0;line-height:1.4">
           <span style="color:white">ΕΙΣΑΙ Ο ΜΕΓΑΛΥΤΕΡΟΣ<br>ΟΠΑΔΟΣ ΤΟΥ ΟΛΥΜΠΙΑΚΟΥ!</span>
         </div>
-        <div style="font-size:clamp(1.1rem,3.5vw,1.8rem);font-weight:900;margin:12px 0;color:var(--marvel-yellow)">
+        <div style="font-size:clamp(1.1rem,3.5vw,1.8rem);font-weight:900;margin:12px 0;color:#ffe066">
           ΕΙΣΑΙ Ο ΠΙΟ ΓΑΥΡΟΣ ΑΠΟ ΟΛΟΥΣ! 🔴⚪🔴
         </div>
       </div>
@@ -413,17 +439,17 @@
     <!-- Phase 4: Joke reveal (green, has the replay button) -->
     <div class="victory-olympiakos" id="victoryJoke">
       <div class="victory-card joke-card">
-        <span class="trophy-emoji">😈</span>
+        <span class="trophy-emoji" aria-hidden="true">😈</span>
         <div class="victory-title" style="color:#2ecc71;text-shadow:3px 3px 0 rgba(0,0,0,0.5)">
           😂 ΠΛΑΚΑ ΚΑΝΩ ΚΩΝΣΤΑΝΤΙΝΕ! 😂
         </div>
         <div style="font-size:clamp(1rem,3.5vw,1.5rem);font-weight:900;margin:10px 0;line-height:1.4">
           <span style="color:#5dfc8d">ΕΙΣΑΙ Ο ΠΙΟ ΜΕΓΑΛΟΣ<br>ΦΙΛΑΘΛΟΣ ΤΟΥ ΠΑΝΑΘΗΝΑΙΚΟΥ!</span>
         </div>
-        <div style="font-size:clamp(1.1rem,3.5vw,1.8rem);font-weight:900;margin:12px 0;color:#2ecc71">
+        <div style="font-size:clamp(1.1rem,3.5vw,1.8rem);font-weight:900;margin:12px 0;color:#5dfc8d">
           Ο ΠΙΟ ΜΕΓΑΛΟΣ ΒΑΖΕΛΟΣ ΑΠΟ ΟΛΟΥΣ! 🟢🟢🟢
         </div>
-        <button class="btn-main" onclick="restartQuiz()" style="margin-top:20px;background:linear-gradient(135deg,#27ae60,#1a7a42)">
+        <button class="btn-main" onclick="restartQuiz()" style="margin-top:20px;background:linear-gradient(135deg,#1e8449,#1a7a42)">
           🔄 ΠΑΙΞΕ ΞΑΝΑ
         </button>
       </div>
@@ -530,7 +556,9 @@ function startQuiz() {
   renderQ();
 }
 
-function renderQ() {
+// focusIdx (προαιρετικό): μετά από λάθος απάντηση ξαναβάζουμε το focus
+// στο ίδιο κουμπί, ώστε όποιος παίζει με πληκτρολόγιο να μη «χάνεται».
+function renderQ(focusIdx) {
   var q = shuffledQuestions[currentQ];
   locked = false;
   var hi = Math.floor(currentQ / 3) % heroEmojis.length;
@@ -552,6 +580,14 @@ function renderQ() {
     btn.addEventListener('click', function(){ handleAnswer(idx); });
     grid.appendChild(btn);
   });
+  // Προσβασιμότητα: τα παλιά κουμπιά σβήστηκαν, άρα και το focus τους.
+  // Νέα ερώτηση -> focus στην ερώτηση (ο αναγνώστης οθόνης τη διαβάζει).
+  // Ξανά η ίδια ερώτηση μετά από λάθος -> focus στο κουμπί που πατήθηκε.
+  if (typeof focusIdx === 'number') {
+    grid.children[focusIdx].focus();
+  } else {
+    document.getElementById('questionText').focus();
+  }
 }
 
 function handleAnswer(idx) {
@@ -572,7 +608,7 @@ function handleAnswer(idx) {
     if (currentQ >= shuffledQuestions.length) {
       setTimeout(showVictory, 900);
     } else {
-      setTimeout(renderQ, 800);
+      setTimeout(function(){ renderQ(); }, 800);
     }
   } else {
     btns[idx].classList.add('wrong-ans');
@@ -580,7 +616,7 @@ function handleAnswer(idx) {
     fb.textContent = '❌ Όχι! Δοκίμασε ξανά!';
     fb.className = 'feedback-text wrong';
     playWrong();
-    setTimeout(renderQ, 900);
+    setTimeout(function(){ renderQ(idx); }, 900);
   }
 }
 
