@@ -1,0 +1,17 @@
+# Dependabot: μόνο τα GitHub Actions (το repo δεν έχει npm/pip εξαρτήσεις για το CI).
+# PRs προς `staging`; cooldown 7 ημέρες όπως σε όλο το fleet (semgrep dependabot-missing-cooldown).
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    target-branch: "staging"
+    cooldown:
+      default-days: 7
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 3
+    labels:
+      - "ci"
+    commit-message:
+      prefix: "ci"

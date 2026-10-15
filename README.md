@@ -1,6 +1,6 @@
 # ⚡ Η Αποστολή του Κωνσταντίνου ⚡
 
-**Άνοιγμα online:** [https://konzag.github.io/konstantinos/](https://konzag.github.io/konstantinos/)
+**Άνοιγμα online:** [https://public.tailc01d70.ts.net/konstantinos/](https://public.tailc01d70.ts.net/konstantinos/) (από το «Τα Παιχνίδια μας», το hub με όλα τα παιχνίδια του σπιτιού· το GitHub Pages έκλεισε)
 
 **Python setup:**
 ```bash
