@@ -41,7 +41,7 @@ class FakeElement {
     for (const [k, v] of Object.entries(attrs)) {
       if (k.startsWith('data-')) this.dataset[k.slice(5).replace(/-([a-z])/g, (_, c) => c.toUpperCase())] = v;
     }
-    this.style = {};
+    this.style = { setProperty(k, v) { this[k] = v; }, removeProperty(k) { delete this[k]; }, getPropertyValue(k) { return this[k] ?? ''; } };
     this.listeners = {};
     this.children = [];
     this.textContent = '';
