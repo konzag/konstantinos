@@ -364,7 +364,7 @@
     <h1 class="welcome-title">⚡ Η ΑΠΟΣΤΟΛΗ ΤΟΥ ΚΩΝΣΤΑΝΤΙΝΟΥ ⚡</h1>
     <p class="welcome-subtitle">Μπορείς να γίνεις Αληθινός Ήρωας της Marvel;</p>
     <p class="welcome-intro">Απάντησε σε 15 ερωτήσεις και αποδείξτο!</p>
-    <button class="btn-main" onclick="startQuiz()">🚀 ΕΝΑΡΞΗ ΑΠΟΣΤΟΛΗΣ</button>
+    <button class="btn-main" id="startQuizBtn">🚀 ΕΝΑΡΞΗ ΑΠΟΣΤΟΛΗΣ</button>
   </div>
 </div>
 
@@ -450,7 +450,7 @@
         <div style="font-size:clamp(1.1rem,3.5vw,1.8rem);font-weight:900;margin:12px 0;color:#5dfc8d">
           Ο ΠΙΟ ΜΕΓΑΛΟΣ ΒΑΖΕΛΟΣ ΑΠΟ ΟΛΟΥΣ! 🟢🟢🟢
         </div>
-        <button class="btn-main" onclick="restartQuiz()" style="margin-top:20px;background:linear-gradient(135deg,#1e8449,#1a7a42)">
+        <button class="btn-main" id="restartQuizBtn" style="margin-top:20px;background:linear-gradient(135deg,#1e8449,#1a7a42)">
           🔄 ΠΑΙΞΕ ΞΑΝΑ
         </button>
       </div>
@@ -690,6 +690,12 @@ function restartQuiz() {
   document.getElementById('confettiContainer').innerHTML = '';
   startQuiz();
 }
+
+/* ── BUTTONS ──
+   The games hub serves this page with a strict Content-Security-Policy, so the buttons get their
+   click handlers here (addEventListener) instead of inline onclick attributes. Same functions as before. */
+document.getElementById('startQuizBtn').addEventListener('click', function() { startQuiz(); });
+document.getElementById('restartQuizBtn').addEventListener('click', function() { restartQuiz(); });
 </script>
 </body>
 </html>
