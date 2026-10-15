@@ -1,12 +1,12 @@
 name: CI
 
-# Τεστ σε κάθε PR προς staging/main και σε κάθε push στο staging (GAME-STANDARD, fleet conventions):
+# Τεστ σε κάθε PR προς staging/main και σε κάθε push στο staging και στο main (GAME-STANDARD, fleet conventions):
 # actions καρφωμένα σε SHA, token μόνο για ανάγνωση, gitleaks με έλεγχο checksum.
 on:
   pull_request:
     branches: [staging, main]
   push:
-    branches: [staging]
+    branches: [staging, main]
   workflow_dispatch:
 
 concurrency:

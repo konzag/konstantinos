@@ -14,8 +14,9 @@ https://github.com/konzag/games-template/blob/main/GAME-STANDARD.md (copy: konza
 - `assets/hub-shell.js` is the hub shell (🏠 back to `/`, 🔊 sound on/off, its own key `game.<repo>.sound`).
   Load it FIRST on every HTML page (`tests/hub-shell.test.mjs` checks it).
 - No external resources (no Google Fonts, no CDN). The font comes from the hub: `/static/fonts/comfortaa.css`.
-- The hub serves every page with a strict CSP: inline `onclick="…"` still works here (the hub hashes it), but new
-  code uses `addEventListener`. No `eval`, no network calls.
+- The hub serves every page with a strict CSP: no inline event handlers (`onclick="…"` etc.), wire them with
+  `addEventListener` (`tests/no-inline-handlers.test.mjs` checks it), so the hub needs no `'unsafe-hashes'`.
+  No `eval`, no network calls.
 
 ## Stack
 - index.html: Marvel quiz web game (15 questions, math + logic + Marvel heroes)
