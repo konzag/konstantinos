@@ -86,5 +86,90 @@ class AccessibilityTest(unittest.TestCase):
         self.assertFalse("135deg,#27ae60" in HTML)
 
 
+class TerminalRoundTest(unittest.TestCase):
+    """Ένας ολόκληρος γύρος του konstantinos.py με «ψεύτικο» πληκτρολόγιο.
+
+    Το παιχνίδι δεν κρατά σκορ: η σωστή απάντηση πάει στην επόμενη ερώτηση,
+    η λάθος ξαναρωτά την ίδια (CLAUDE.md). Χωρίς ανακάτεμα (shuffle = τίποτα),
+    χωρίς αναμονή (sleep) και χωρίς ήχο, ώστε το τεστ να τρέχει αμέσως.
+    """
+
+    def play(self, answers, func="run_quiz"):
+        import builtins
+        import io
+        from contextlib import redirect_stdout
+        from unittest import mock
+
+        typed = iter(answers)
+
+        def fake_input(prompt=""):
+            try:
+                return next(typed)
+            except StopIteration:
+                raise EOFError  # τέλος της «πληκτρολόγησης»
+
+        out = io.StringIO()
+        with mock.patch.object(builtins, "input", fake_input), \
+                mock.patch.object(konstantinos.random, "shuffle", lambda a: None), \
+                mock.patch.object(konstantinos.time, "sleep", lambda s: None), \
+                mock.patch.object(konstantinos, "beep", lambda f, ms: None), \
+                redirect_stdout(out):
+            getattr(konstantinos, func)()
+        self.assertEqual(list(typed), [], "όλες οι απαντήσεις διαβάστηκαν")
+        return out.getvalue()
+
+    @staticmethod
+    def correct(q):
+        return str(q["c"] + 1)  # χωρίς ανακάτεμα, η σωστή είναι στη θέση c (1-4 στην οθόνη)
+
+    @staticmethod
+    def wrong(q):
+        return "1" if q["c"] != 0 else "2"
+
+    def test_terminal_round_with_fake_input(self):
+        qs = konstantinos.QUESTIONS
+        out = self.play([self.correct(q) for q in qs])
+        total = len(qs)
+        self.assertEqual(out.count("✅ ΣΩΣΤΟ ΗΡΩΑ!"), total, "μία φορά «σωστό» για κάθε ερώτηση")
+        self.assertNotIn("ΛΑΘΟΣ", out)
+        self.assertIn(f"Ερώτηση {total} από {total}  [{'█' * 20}] 100%", out)
+        for i, q in enumerate(qs, 1):
+            self.assertEqual(out.count(f"❓ {q['q']}"), 1, f"ερώτηση {i} μία φορά")
+            self.assertIn(f"Ερώτηση {i} από {total}", out)
+
+    def test_one_wrong_answer_repeats_that_question_only(self):
+        qs = konstantinos.QUESTIONS
+        typed = [self.correct(q) for q in qs]
+        typed.insert(4, self.wrong(qs[4]))  # λάθος στην 5η ερώτηση, μετά η σωστή
+        out = self.play(typed)
+        self.assertEqual(out.count("❌ ΛΑΘΟΣ! Δοκίμασε ξανά!"), 1)
+        self.assertEqual(out.count("✅ ΣΩΣΤΟ ΗΡΩΑ!"), len(qs), "το λάθος δεν μετράει, ούτε προσπερνά")
+        self.assertEqual(out.count(f"❓ {qs[4]['q']}"), 2, "η ίδια ερώτηση ξανά")
+        self.assertEqual(out.count(f"❓ {qs[5]['q']}"), 1)
+        self.assertIn("100%", out)
+
+    def test_typing_mistakes_are_not_answers(self):
+        qs = konstantinos.QUESTIONS
+        typed = ["", "abc", "0", "5", "-1"] + [self.correct(q) for q in qs]
+        out = self.play(typed)
+        self.assertEqual(out.count("⚠️  Γράψε έναν αριθμό από 1 έως 4!"), 5)
+        self.assertNotIn("ΛΑΘΟΣ", out)
+        self.assertEqual(out.count(f"❓ {qs[0]['q']}"), 6, "η πρώτη ερώτηση ξανά μετά από κάθε λάθος πλήκτρο")
+
+    def test_closed_input_stops_without_endless_loop(self):
+        with self.assertRaises(SystemExit) as stop:
+            self.play([self.correct(konstantinos.QUESTIONS[0])])
+        self.assertEqual(stop.exception.code, 0)
+
+    def test_whole_game_from_welcome_to_victory(self):
+        qs = konstantinos.QUESTIONS
+        out = self.play([""] + [self.correct(q) for q in qs] + [""], func="main")
+        self.assertIn("Καλώς ήρθες, Κωνσταντίνε!", out)
+        self.assertNotIn("ΒΑΖΕΛΟΣ", out, "το μυστικό αστείο μόνο με «vazelos»")
+        self.assertIn("ΕΙΣΑΙ ΑΛΗΘΙΝΟΣ ΗΡΩΑΣ ΤΗΣ MARVEL!", out)
+        self.assertIn("ΕΙΣΑΙ Ο ΜΕΓΑΛΥΤΕΡΟΣ ΟΠΑΔΟΣ ΤΟΥ ΟΛΥΜΠΙΑΚΟΥ!", out)
+        self.assertLess(out.index("100%"), out.index("ΑΛΗΘΙΝΟΣ ΗΡΩΑΣ"), "η νίκη μετά την τελευταία ερώτηση")
+
+
 if __name__ == "__main__":
     unittest.main()
