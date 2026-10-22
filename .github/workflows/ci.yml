@@ -27,6 +27,10 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 2   # coverage-floor-check.sh compares with the base branch (HEAD^1 on staging/main pushes)
+      - name: Coverage floor not lowered (TEST-STANDARD v1 §R; floor = test count in .coverage-floor)
+        run: bash tools/coverage-floor-check.sh
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: "22"
@@ -36,6 +40,32 @@ jobs:
         run: git ls-files -z '*.py' | xargs -0 python3 -m py_compile
       - name: Python tests (standard library unittest)
         run: python3 -m unittest discover -s tests -v
+      - name: shellcheck tools/*.sh (preinstalled on ubuntu-latest)
+        run: shellcheck tools/*.sh
+
+  # Playwright (test-only, tests/ui): index.html under the hub CSP at /konstantinos/, keyboard quiz, tap, axe.
+  ui:
+    name: ui
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "22"
+      - name: Install Playwright (tests/ui only, the game needs nothing)
+        run: cd tests/ui && npm ci && npx playwright install --with-deps chromium
+      - name: Playwright smoke + axe
+        run: cd tests/ui && npx playwright test
+      - name: Test count >= floor (.coverage-floor = node + python + playwright)
+        run: bash tools/test-count-check.sh
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: playwright-${{ github.sha }}
+          path: tests/ui/test-results/
+          retention-days: 14
 
   gitleaks:
     name: gitleaks

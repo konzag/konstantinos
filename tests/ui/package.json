@@ -1,0 +1,15 @@
+{
+  "name": "konstantinos-ui-tests",
+  "private": true,
+  "description": "Playwright smoke + axe για το Marvel quiz του Κωνσταντίνου (μόνο για τα τεστ, το παιχνίδι δεν χρειάζεται εγκατάσταση)",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "serve": "node serve.mjs",
+    "test": "playwright test"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.14.0",
+    "@playwright/test": "1.64.0"
+  }
+}
