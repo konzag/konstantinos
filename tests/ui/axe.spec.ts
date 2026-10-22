@@ -7,16 +7,8 @@ import { expect, test, type Page } from '@playwright/test';
 import { URL, correctIndex } from './helpers';
 
 // "<screen> <scheme> <width>" -> known app bug (the test must fail until the fix run removes the entry).
-const T1 =
-  'APP BUG KONSTANTINOS-T1: the red «❌ Όχι! Δοκίμασε ξανά!» feedback (.feedback-text.wrong #ff8a8a) on the ' +
-  'wrong-answer card (--wrong-bg #7b1111 + glow) has contrast 3.94:1 < 4.5:1 (axe color-contrast, WCAG 1.4.3; ' +
-  '17.6 px bold is not large text)';
-const KNOWN: Record<string, string> = {
-  'try-again light 360': T1,
-  'try-again light 1280': T1,
-  'try-again dark 360': T1,
-  'try-again dark 1280': T1,
-};
+// Empty: KONSTANTINOS-T1 (try-again text contrast) was fixed by a colour-only change (owner decision 9, 2026-10-22).
+const KNOWN: Record<string, string> = {};
 
 async function seriousOrCritical(page: Page) {
   const { violations } = await new AxeBuilder({ page }).analyze();
