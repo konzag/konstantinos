@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 ⚡ Η Αποστολή του Κωνσταντίνου — Marvel Quiz (Terminal Edition) ⚡
-Για τον Κωνσταντίνο, Α' Δημοτικού
+Για τον Κωνσταντίνο
 """
 
 import random
