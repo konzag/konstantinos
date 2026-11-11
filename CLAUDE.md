@@ -1,7 +1,7 @@
 # Konstantinos — Claude Context
 
 ## Project
-Interactive Marvel-themed learning quiz for Konstantinos (6 years old).
+Interactive Marvel-themed learning quiz for Konstantinos.
 HTML + CSS + JS (browser) + Python (terminal). Served by the family games hub «Τα Παιχνίδια μας» (konzag/games-hub)
 at `/konstantinos/`; GitHub Pages is closed (2026-10-14).
 
@@ -27,6 +27,6 @@ https://github.com/konzag/games-template/blob/main/GAME-STANDARD.md (copy: konza
 - Flow: feature branch → PR to `staging` → release PR `staging → main` (owner GO); the hub then bumps its submodule
 - All content in Greek
 - Code must have extensive comments so Konstantinos can read it someday
-- Keep age-appropriate: 6 years old (Α' Δημοτικού), Marvel fan
+- Keep it child-friendly (young children); Marvel fan. Never write a child's age, current class, date of birth, school or teacher in this public repo (owner decision L4-29)
 - Wrong answers repeat the question — no skipping
 - Never add server-side code or dependencies requiring installation
