@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-11-11: privacy, no child age or class in this public repo (owner decision L4-29)
+
+- README, CLAUDE.md and the docstring of `konstantinos.py` no longer state an age or a school class. The quiz itself
+  is unchanged. `tests/no-child-age.test.mjs` scans every text file so it stays that way.
+
 ## 2026-10-22: try-again text contrast (KONSTANTINOS-T1)
 
 - `index.html`: `.feedback-text.wrong` colour `#ff8a8a` → `#ffc2c2`. The red «❌ Όχι! Δοκίμασε ξανά!» feedback
