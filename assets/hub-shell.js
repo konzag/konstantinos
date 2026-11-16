@@ -1,8 +1,10 @@
 // hub-shell.js — το «κέλυφος» του hub «Τα Παιχνίδια μας» (GAME-STANDARD §9).
 //
-// Προσθέτει σε κάθε σελίδα δύο κουμπιά που φαίνονται πάντα (κάτω αριστερά):
+// Προσθέτει σε κάθε σελίδα τρία κουμπιά που φαίνονται πάντα (κάτω αριστερά):
 //   🏠  Πίσω στα παιχνίδια: πηγαίνει στην αρχική σελίδα του hub ("/").
 //   🔊  Ήχος on/off: η επιλογή θυμάται (localStorage, κλειδί game.<παιχνίδι>.sound).
+//   EN  Γλώσσα του κελύφους: ελληνικά ή αγγλικά (localStorage, κλειδί games.lang, κοινό για όλα τα παιχνίδια).
+//       Αλλάζει μόνο τα κείμενα των κουμπιών· το ίδιο το παιχνίδι μένει όπως το έγραψαν τα παιδιά.
 //
 // Πώς σβήνει ο ήχος χωρίς να αλλάξει τίποτα στο παιχνίδι:
 // κάθε AudioContext που φτιάχνει η σελίδα παίρνει έναν «διακόπτη» (GainNode) ανάμεσα στους ήχους και
@@ -17,12 +19,26 @@
   var script = document.currentScript;
   var game = (script && script.dataset.game) || 'game';
   var KEY = 'game.' + game + '.sound';
+  var LANG_KEY = 'games.lang'; // ίδιο κλειδί σε όλα τα παιχνίδια του hub: η γλώσσα ακολουθεί το παιδί
+
+  // Τα κείμενα του κελύφους στις δύο γλώσσες. «lang» = το κουμπί που αλλάζει γλώσσα:
+  // δείχνει την ΑΛΛΗ γλώσσα (αυτή που θα διαλέξεις αν το πατήσεις).
+  var STRINGS = {
+    el: { home: 'Πίσω στα παιχνίδια', sound: 'Ήχος', langText: 'EN', langLabel: 'EN · English' },
+    en: { home: 'Back to games', sound: 'Sound', langText: 'ΕΛ', langLabel: 'ΕΛ · Ελληνικά' }
+  };
 
   // Ήταν σβηστός ο ήχος την προηγούμενη φορά; (αν ο browser δεν αφήνει localStorage: ανοιχτός)
   var muted = false;
   try {
     muted = localStorage.getItem(KEY) === 'off';
   } catch (e) { /* χωρίς αποθήκευση: απλώς ξεκινάμε με ήχο */ }
+
+  // Ποια γλώσσα είχε διαλέξει; Ό,τι άλλο (τίποτα, λάθος τιμή, χωρίς localStorage) = ελληνικά.
+  var lang = 'el';
+  try {
+    if (localStorage.getItem(LANG_KEY) === 'en') lang = 'en';
+  } catch (e) { /* χωρίς αποθήκευση: ελληνικά */ }
 
   var switches = []; // ένας διακόπτης για κάθε AudioContext της σελίδας
 
@@ -43,7 +59,10 @@
     if (window.webkitAudioContext) window.webkitAudioContext = WithSwitch;
   }
 
+  var bar = null;
+  var home = null;
   var soundBtn = null;
+  var langBtn = null;
 
   function setMuted(value) {
     muted = value;
@@ -57,10 +76,32 @@
     }
   }
 
-  function makeButton(el, text, label) {
+  // Γράφει μια ετικέτα σε κουμπί: ως title (φαίνεται με το ποντίκι) και aria-label (το διαβάζει ο αναγνώστης οθόνης).
+  function label(el, text) {
+    el.title = text;
+    el.setAttribute('aria-label', text);
+  }
+
+  // Βάζει τα κείμενα της γλώσσας στα κουμπιά. Με save=true τη θυμάται κιόλας.
+  function setLang(value, save) {
+    lang = value === 'en' ? 'en' : 'el';
+    if (save) {
+      try {
+        localStorage.setItem(LANG_KEY, lang);
+      } catch (e) { /* δεν πειράζει: απλώς δεν θα το θυμάται */ }
+    }
+    var s = STRINGS[lang];
+    if (bar) bar.setAttribute('lang', lang); // μόνο τα κουμπιά αλλάζουν γλώσσα, όχι η σελίδα
+    if (home) label(home, s.home);
+    if (soundBtn) label(soundBtn, s.sound);
+    if (langBtn) {
+      langBtn.textContent = s.langText;
+      label(langBtn, s.langLabel);
+    }
+  }
+
+  function makeButton(el, text) {
     el.textContent = text;
-    el.title = label;
-    el.setAttribute('aria-label', label);
     el.style.cssText =
       'width:56px;height:56px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;' +
       'font-size:28px;line-height:1;text-decoration:none;cursor:pointer;padding:0;margin:0;' +
@@ -71,23 +112,31 @@
 
   function build() {
     if (document.getElementById('hub-shell')) return;
-    var bar = document.createElement('div');
+    bar = document.createElement('div');
     bar.id = 'hub-shell';
     bar.style.cssText =
       'position:fixed;left:12px;bottom:12px;z-index:2147483000;display:flex;gap:10px;' +
       'font-family:system-ui,sans-serif;';
 
-    var home = makeButton(document.createElement('a'), '🏠', 'Πίσω στα παιχνίδια');
+    home = makeButton(document.createElement('a'), '🏠');
     home.href = '/';
 
-    soundBtn = makeButton(document.createElement('button'), '🔊', 'Ήχος');
+    soundBtn = makeButton(document.createElement('button'), '🔊');
     soundBtn.type = 'button';
     soundBtn.addEventListener('click', function () { setMuted(!muted); });
 
+    langBtn = makeButton(document.createElement('button'), 'EN');
+    langBtn.type = 'button';
+    langBtn.style.fontSize = '20px';
+    langBtn.style.fontWeight = '700';
+    langBtn.addEventListener('click', function () { setLang(lang === 'el' ? 'en' : 'el', true); });
+
     bar.appendChild(home);
     bar.appendChild(soundBtn);
+    bar.appendChild(langBtn);
     document.body.appendChild(bar);
     setMuted(muted); // σωστό εικονίδιο από την αρχή
+    setLang(lang, false); // σωστά κείμενα από την αρχή
   }
 
   if (document.body) build();
