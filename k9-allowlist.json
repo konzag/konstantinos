@@ -4,7 +4,6 @@
   "allow": {
     "axe-2.2": "tests/ui/axe.spec.ts runs AxeBuilder with the default rule set: no explicit wcag22aa tags yet, so WCAG 2.2 rules (target size 2.5.8 etc.) are not asserted. Own PR (Block 0).",
     "visual-baseline": "No committed toHaveScreenshot baselines yet: they must be generated on the Linux CI runner (fonts/rendering differ on Windows), so they come with their own PR.",
-    "el-en-strings": "The quiz is Greek-only today (all content in Greek, CLAUDE.md); no English strings exist yet. GAME-STANDARD §9: old games get the hub shell only, EL+EN is open (Block 7 item 3).",
     "readme-test-guide": "README.md has none of the GAME-STANDARD §2a tester-guide sections except «Τι άλλαξε» (no Οθόνες και ροή, Λίστα χειροκίνητων δοκιμών with numbered IDs, Γνωστοί περιορισμοί, Ασφαλής δοκιμή, Αναφορά προβλήματος) and no .github/ISSUE_TEMPLATE bug.yml/update.yml."
   }
 }
