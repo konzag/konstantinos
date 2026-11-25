@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026-11-16: the hub shell in Greek and English (Block 7, owner 02/11)
+
+- `assets/hub-shell.js`: a third round button next to 🏠 and 🔊 switches the shell language: «EN» while Greek,
+  «ΕΛ» while English. The 🏠 / 🔊 labels (title + aria-label) follow it: «Πίσω στα παιχνίδια» / «Back to games»,
+  «Ήχος» / «Sound». The choice is kept on the device in `games.lang` (one key for every game of the hub, try/catch,
+  Greek when unset or invalid). Only the shell changes language: the quiz stays Greek and `<html lang>` is untouched
+  (GAME-STANDARD §9); the bar carries its own `lang`.
+- Tests: `tests/hub-shell-lang.test.mjs` (5 node tests) and `tests/ui/lang.spec.ts` (5 browser tests: default Greek,
+  switch + persist + reload, invalid value, storage that throws, axe on the bar in English), red on the old shell.
+  K9 `el-en-strings` is now present (allowlist entry removed). Test count 44 → 54, `.coverage-floor` 44 → 54.
+
 ## 2026-11-11: privacy, no child age or class in this public repo (owner decision L4-29)
 
 - README, CLAUDE.md and the docstring of `konstantinos.py` no longer state an age or a school class. The quiz itself
